@@ -135,7 +135,7 @@ function calculateStars() {
 // ---- セーフティ: saveState と manualSave のフォールバック
 // 他のファイルで定義されている場合は上書きしない
 if (typeof window.saveState !== 'function') {
-  window.saveState = function() {
+  window.saveState = function () {
     try {
       localStorage.setItem('hrEvalState', JSON.stringify(state));
       const st = document.getElementById('save-status');
@@ -151,7 +151,7 @@ if (typeof window.saveState !== 'function') {
 }
 
 if (typeof window.manualSave !== 'function') {
-  window.manualSave = function() {
+  window.manualSave = function () {
     try {
       window.saveState();
     } catch (e) {
@@ -802,12 +802,12 @@ function renderRole() {
               <p class="text-xs font-bold text-gray-500 mb-2">業務内容 (Harvest必須)</p>
               <ul class="space-y-1 mb-3">
                 ${['原価・利益管理', 'コンプライアンス・ガバナンス', '互いを思うチームワーク', '未来につなぐ人材評価', '衛生・安全管理'].map(k => {
-      const level = state.workLevels[k] || 'SEED';
-      const ok = level === 'HARVEST';
-      return `<li class="flex items-center gap-2 text-sm ${ok ? 'text-orange-700 font-bold' : 'text-gray-400'}">
+    const level = state.workLevels[k] || 'SEED';
+    const ok = level === 'HARVEST';
+    return `<li class="flex items-center gap-2 text-sm ${ok ? 'text-orange-700 font-bold' : 'text-gray-400'}">
                       <span>${ok ? '✅' : '⬜'}</span> ${k} ${k === 'コンプライアンス・ガバナンス' ? '(労務・会社法含む)' : ''}
                     </li>`;
-    }).join('')}
+  }).join('')}
               </ul>
             </div>
             
@@ -2210,13 +2210,19 @@ function render() {
     <div class="min-h-screen bg-gray-50 font-sans text-gray-800 pb-20">
       <header class="bg-white shadow-sm sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <!-- タイトルをタブと別の行に移動（タブとの干渉を避ける） -->
-          <div class="py-2">
-            <h1 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-800 tracking-tight">G.E.M.S. （Growth Evaluation and Mapping System）</h1>
+          <!-- タイトルエリア -->
+          <div class="py-3 md:py-4">
+             <!-- モバイルでは文字サイズを小さく、改行を許容して高さを抑える -->
+            <h1 class="text-base md:text-2xl font-bold text-gray-800 tracking-tight leading-tight">
+              G.E.M.S. <span class="hidden sm:inline">（Growth Evaluation and Mapping System）</span>
+            </h1>
           </div>
-          <div class="flex justify-between h-16">
-            <div class="flex items-center gap-4 overflow-x-auto no-scrollbar">
-              <nav class="flex flex-wrap md:flex-nowrap gap-1">
+          
+          <!-- タブナビゲーションエリア -->
+          <!-- h-16固定を削除し、パディングで高さを確保。wrapさせずにスクロールさせる -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-0 md:pb-0">
+            <div class="-mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar mask-gradient-right">
+              <nav class="flex flex-nowrap gap-2 md:gap-1 border-b md:border-b-0 border-gray-100 pb-1 md:pb-0">
                 ${tabs.map(tab => `
                   <button
                     id="tab-${tab.id}"
@@ -2224,7 +2230,7 @@ function render() {
                     class="${state.activeTab === tab.id
       ? 'bg-amber-100 text-amber-900 border-amber-500'
       : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 border-transparent'} 
-                      whitespace-nowrap px-3 py-3 md:py-2 rounded-md text-sm font-medium transition-colors border-b-2"
+                      whitespace-nowrap px-3 py-2 md:py-2 rounded-t-md md:rounded-md text-sm font-medium transition-colors border-b-2"
                   >
                     ${tab.label}
                   </button>
@@ -2232,13 +2238,22 @@ function render() {
               </nav>
             </div>
             
-            <div class="flex items-center ml-4">
-               <div id="save-status" class="text-xs text-gray-400 mr-2 hidden md:block"></div>
-               <button onclick="manualSave()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm font-bold shadow transition-colors">
+            <!-- 保存ボタンエリア（モバイルではタブの下、または右端に配置したいが、タブが多いので横スクロール外に置くのが吉）-->
+            <div class="hidden md:flex items-center ml-4 flex-shrink-0">
+               <div id="save-status" class="text-xs text-gray-400 mr-2"></div>
+               <button onclick="manualSave()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-bold shadow transition-colors">
                  保存
                </button>
             </div>
           </div>
+        </div>
+        <!-- モバイル用保存ボタン（フローティングまたはヘッダー内調整）-->
+        <!-- 今回はシンプルにPCと同じ位置だが、タブ行の右端に固定表示させるCSS工夫も可。
+             現状はデスクトップのみ表示になっていたので、モバイルでもアクセスできるように戻す -->
+        <div class="md:hidden absolute top-3 right-4">
+           <button onclick="manualSave()" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold shadow">
+             保存
+           </button>
         </div>
       </header>
 
@@ -3106,9 +3121,50 @@ function renderFlow() {
     </div>
   `;
 }
-// 初期化実行
-loadState();
-calculateStars();
-render();
-// 初回ロード時にチャートを描画（ダッシュボードの場合）
-setTimeout(() => { if (state.activeTab === 'dashboard') drawRadarChart(); }, 100);
+
+// 初期化実行 (Safe Mode)
+function initApp() {
+  try {
+    // 1. Data check
+    if (typeof HUMAN_POWERS === 'undefined' || typeof WORKS === 'undefined') {
+      throw new Error('Data definitions (HUMAN_POWERS/WORKS) are missing. Check data.js loading.');
+    }
+
+    // 2. Element check
+    const app = document.getElementById('app');
+    if (!app) {
+      throw new Error('#app element not found.');
+    }
+
+    // 3. Start
+    loadState();
+    calculateStars();
+    render();
+
+    // 4. Post-render actions
+    if (state.activeTab === 'dashboard') {
+      setTimeout(() => drawRadarChart(), 100);
+    }
+
+    console.log('App Initialized successfully');
+
+  } catch (e) {
+    console.error('Initialization Failed:', e);
+    // Explicitly show error on screen if not caught by window.onerror
+    const app = document.getElementById('app') || document.body;
+    app.innerHTML = `
+      <div style="padding: 2rem; color: #7f1d1d; background: #fef2f2; font-family: sans-serif;">
+        <h2 style="font-weight: bold; margin-bottom: 1rem;">Failed to load application</h2>
+        <p>${e.message}</p>
+        <pre style="background: #fff; padding: 1rem; margin-top: 1rem; overflow: auto;">${e.stack}</pre>
+      </div>
+    `;
+  }
+}
+
+// Wait for DOM
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
