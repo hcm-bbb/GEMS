@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEMS(人間力評価制度)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+
+    body {
+      box-sizing: border-box;
+      font-family: 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      background: linear-gradient(135deg, #FFF9F0 0%, #FFF5E8 50%, #F5F0E8 100%);
+      color: #5A5550;
+    }
+
+
+    * {
+      box-sizing: border-box;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .tab-button {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .tab-button.active {
+      background: linear-gradient(135deg, #8B7355 0%, #6B5744 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(107, 87, 68, 0.3);
+    }
+
+    .modal-backdrop {
+      background-color: rgba(90, 85, 80, 0.4);
+      backdrop-filter: blur(4px);
+    }
+
+    .slide-in {
+      animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .progress-bar {
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-hover:hover {
+      box-shadow: 0 12px 24px rgba(255, 155, 113, 0.15);
+      transform: translateY(-2px);
+    }
+
+    select,
+    input,
+    button {
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+
+    .radar-chart {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* レーダーチャート用のレスポンシブコンテナ */
+    .radar-container {
+      width: 100%;
+      max-width: 520px;
+      aspect-ratio: 1 / 1;
+      position: relative;
+    }
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: linear-gradient(180deg, rgba(255, 249, 240, 0.98) 0%, rgba(255, 245, 232, 0.95) 100%);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 16px rgba(139, 115, 85, 0.08);
+      border-bottom: 1px solid rgba(139, 115, 85, 0.1);
+    }
+
+    .gradient-primary {
+      background: linear-gradient(135deg, #8B7355 0%, #6B5744 100%);
+    }
+
+    .gradient-secondary {
+      background: linear-gradient(135deg, #A0826D 0%, #8B7355 100%);
+    }
+
+    .gradient-accent {
+      background: linear-gradient(135deg, #D4A574 0%, #C19A6B 100%);
+    }
+
+    .text-primary {
+      color: #6B5744;
+    }
+
+    .text-secondary {
+      color: #8B7355;
+    }
+
+    .text-accent {
+      color: #C19A6B;
+    }
+
+    .border-primary {
+      border-color: #8B7355;
+    }
+
+    .border-accent {
+      border-color: #D4A574;
+    }
+
+    .bg-cream {
+      background-color: #FFF9F0;
+    }
+
+    .bg-warm-white {
+      background-color: #FFFBF5;
+    }
+
+    /* --- 印刷用スタイル (A4 シンプルレイアウト) --- */
+    @media print {
+      @page {
+        margin: 10mm;
+        size: A4 portrait;
+      }
+
+      body {
+        background: white !important;
+        color: black !important;
+        font-size: 10pt;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* 画面でのみ表示する要素を隠す（ボタンやナビゲーション） */
+      .no-print,
+      .top-nav,
+      .tab-button,
+      button,
+      input[type="file"],
+      .modal-backdrop,
+      .screen-only {
+        display: none !important;
+      }
+
+      /* 印刷時のみ表示する要素 */
+      .print-only {
+        display: block !important;
+      }
+
+      /* レイアウトのリセット */
+      .max-w-7xl {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .shadow-xl,
+      .shadow-lg,
+      .shadow-md {
+        box-shadow: none !important;
+        border: none !important;
+      }
+
+      .bg-white {
+        background-color: white !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        margin-bottom: 10px !important;
+      }
+
+      [class*="border-l-4"] {
+        border-left: 1px solid #000 !important;
+      }
+
+      /* グリッド調整 */
+      .grid-cols-1 {
+        display: block !important;
+      }
+
+      .md\:grid-cols-2 {
+        display: flex !important;
+        gap: 10px !important;
+      }
+
+      .md\:grid-cols-2>div {
+        width: 50% !important;
+      }
+
+      /* 入力欄の見た目を消す */
+      input[type="text"],
+      textarea {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        resize: none;
+        width: auto !important;
+      }
+
+      /* チャートと改ページ制御 */
+      .radar-container {
+        max-width: 350px !important;
+        margin: 0 auto !important;
+      }
+
+      .page-break {
+        page-break-before: always;
+      }
+
+      .avoid-break {
+        page-break-inside: avoid;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: black !important;
+      }
+    }
+
+    /* 通常時は印刷専用要素を隠す */
+    .print-only {
+      display: none;
+    }
+  </style>
+  <style>
+    @view-transition {
+      navigation: auto;
+    }
+  </style>
+    <!-- Removed absolute /_sdk references which are not present in the project.
+      If you need SDKs, add them as relative paths like ./_sdk/data_sdk.js -->
+    </head>
+
+<body class="bg-gray-50 min-h-full">
+  <div id="app" class="h-full"></div>
+  <input type="file" id="fileInput" class="hidden" accept=".json" onchange="importData(event)">
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+  <script>/* Removed suspicious Cloudflare injection snippet that blocks local preview */</script>
+</body>
+
+</html>
